@@ -3,19 +3,20 @@
 
 #include <memory>
 #include <iostream>
+#include <cassert>
 
 template<typename T>
 struct Node_ {
     std::shared_ptr<T> data;
-    std::weak_ptr<struct Node_ > leftNode;
-    std::shared_ptr<struct Node_ > rightNode;
+    std::weak_ptr<struct Node_> leftNode;
+    std::shared_ptr<struct Node_> rightNode;
 };
 
 
 template<typename List_>
 class ListIterator {
 public:
-    #define Node struct Node_
+#define Node struct Node_
     using ValueType = typename List_::ValueType;
     using SharedPointerType = typename List_::SharedPointerType;
     using SharedPointerNode = typename List_::SharedPointerNode;
@@ -71,7 +72,7 @@ template<typename T>
 class List {
 public:
 
-    #define Node struct Node_
+#define Node struct Node_
     using ValueType = T;
     using SharedPointerType = std::shared_ptr<T>;
     using Iterator = ListIterator<List<T>>;
@@ -90,21 +91,21 @@ public:
     }
 
 
-    void Clear(){
+    void Clear() {
         head_ = tail_.lock();
         head_->leftNode.reset();
         size_ = 0;
     }
 
-    void PushFront(T&& data) {
+    void PushFront(ValueType&& data) {
         PushFront(std::forward<T&>(data));
     }
 
-    void PushFront(T& data) {
+    void PushFront(ValueType& data) {
 
         SharedPointerNode node = std::make_shared<Node<ValueType>>();
 
-        node->data = std::make_shared<T>(data);
+        node->data = std::make_shared<ValueType>(data);
         node->rightNode = head_;
         ++size_;
 
@@ -128,15 +129,15 @@ public:
         return Iterator(tail_.lock());
     }
 
-    void PushBack(T&& data) {
-        PushBack(std::forward<T&>(data));
+    void PushBack(ValueType&& data) {
+        PushBack(std::forward<ValueType&>(data));
     }
 
-    void PushBack(T& data) {
+    void PushBack(ValueType& data) {
         SharedPointerNode node = std::make_shared<Node<ValueType>>();
-        node->data = std::make_shared<T>(data);
+        node->data = std::make_shared<ValueType>(data);
 
-        if (IsEmpty()) {
+        if (Empty()) {
             node->rightNode = tail_.lock();
             tail_.lock()->leftNode = node;
             head_ = node;
@@ -152,10 +153,7 @@ public:
     }
 
     void PopFront() {
-        if (IsEmpty()) {
-            std::cout << "Cannot pop from empty list\n";
-            exit(1);
-        }
+        assert(Empty() != true && "You cannot pop node from empty list");
 
         if (size_ == 1) {
             head_ = tail_.lock();
@@ -170,7 +168,9 @@ public:
     }
 
     void PopBack() {
-        if (IsEmpty()) {
+        assert(Empty() != true && "You cannot pop node from empty list");
+
+        if (Empty()) {
             std::cout << "Cannot pop from empty list\n";
             exit(1);
         }
@@ -189,15 +189,12 @@ public:
     }
 
 
-    void Remove(T&& data) {
-        Remove(std::forward<T&>(data));
+    void Remove(ValueType&& data) {
+        Remove(std::forward<ValueType&>(data));
     }
 
-    void Remove(T& data) {
-        if (IsEmpty()) {
-            std::cout << "You cannot delete a node from an empty list" << std::endl;
-            exit(1);
-        }
+    void Remove(ValueType& data) {
+        assert(Empty() != true && "You cannot remove node from empty list");
 
         SharedPointerNode it = head_;
         while (it->rightNode != nullptr) {
@@ -224,7 +221,7 @@ public:
         return size_;
     }
 
-    bool IsEmpty() const {
+    bool Empty() const {
         if (size_ == 0)
             return true;
         return false;
