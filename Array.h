@@ -8,10 +8,11 @@ template<class Array_>
 class ArrayIterator{
 public:
         using ValueType = typename Array_::ValueType;
+        using PointerType = ValueType*;
         using ReferenceType = ValueType&;
 public:
 
-        explicit ArrayIterator(ValueType* ptr): ptr_(ptr){}
+        explicit ArrayIterator(PointerType ptr): ptr_(ptr){}
 
     ArrayIterator& operator++() {
         ptr_++;
@@ -36,7 +37,7 @@ public:
         return iterator;
     }
 
-    ValueType* operator->() {
+    PointerType operator->() {
         return ptr_;
     }
 
@@ -54,7 +55,7 @@ public:
 
 
 private:
-    ValueType* ptr_;
+    PointerType ptr_;
 };
 
 template<typename T,size_t S>
